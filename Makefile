@@ -1,17 +1,12 @@
 # Makefile for AwsUpdater
 
-SOURCES = AwsUpdater/main.swift \
-          AwsUpdater/Providers.swift \
-          AwsUpdater/CredentialsUpdater.swift
+.PHONY: all clean test
 
-TARGET = aws-updater
-
-.PHONY: all clean
-
-all: $(TARGET)
-
-$(TARGET): $(SOURCES)
-	swiftc -O -o $(TARGET) $(SOURCES)
+all:
+	xcodebuild -scheme AwsUpdater -configuration Release
 
 clean:
-	rm -f $(TARGET)
+	xcodebuild -scheme AwsUpdater clean
+
+test:
+	xcodebuild -scheme AwsUpdater test
