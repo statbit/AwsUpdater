@@ -14,6 +14,15 @@ struct CredentialsSection {
 /// Pure logic for parsing and updating AWS credentials files
 struct CredentialsUpdater {
 
+    /// Extracts profile names from parsed sections
+    /// - Parameter sections: Array of parsed credential sections
+    /// - Returns: Array of profile names (without brackets)
+    func extractProfileNames(from sections: [CredentialsSection]) -> [String] {
+        return sections.map { section in
+            section.header.trimmingCharacters(in: CharacterSet(charactersIn: "[]"))
+        }
+    }
+
     /// Parses credentials file content into sections
     /// - Parameter content: The raw content of the credentials file
     /// - Returns: Array of sections, each with a header and associated lines

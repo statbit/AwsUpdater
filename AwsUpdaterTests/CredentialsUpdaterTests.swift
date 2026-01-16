@@ -83,6 +83,98 @@ final class CredentialsUpdaterTests: XCTestCase {
         XCTAssertTrue(sections[0].lines[0].hasPrefix("    "))
     }
 
+    // MARK: - extractProfileNames Tests
+
+    func testExtractProfileNames_singleProfile() {
+        let sections = [
+            CredentialsSection(header: "[default]", lines: ["aws_access_key_id = KEY"])
+        ]
+
+        let names = updater.extractProfileNames(from: sections)
+
+        XCTAssertEqual(names, ["default"])
+    }
+
+    func testExtractProfileNames_multipleProfiles() {
+        let sections = [
+            CredentialsSection(header: "[default]", lines: ["key = value"]),
+            CredentialsSection(header: "[production]", lines: ["key = value"]),
+            CredentialsSection(header: "[staging]", lines: ["key = value"])
+        ]
+
+        let names = updater.extractProfileNames(from: sections)
+
+        XCTAssertEqual(names, ["default", "production", "staging"])
+    }
+
+    func testExtractProfileNames_emptySections() {
+        let sections: [CredentialsSection] = []
+
+        let names = updater.extractProfileNames(from: sections)
+
+        XCTAssertEqual(names, [])
+    }
+
+    func testExtractProfileNames_profileWithSpaces() {
+        let sections = [
+            CredentialsSection(header: "[profile dev]", lines: ["key = value"])
+        ]
+
+        let names = updater.extractProfileNames(from: sections)
+
+        XCTAssertEqual(names, ["profile dev"])
+    }
+
+    func testExtractProfileNames_preservesCase() {
+        let sections = [
+            CredentialsSection(header: "[PRODUCTION]", lines: ["key = value"]),
+            CredentialsSection(header: "[Staging]", lines: ["key = value"])
+        ]
+
+        let names = updater.extractProfileNames(from: sections)
+
+        XCTAssertEqual(names, ["PRODUCTION", "Staging"])
+    }
+
+    func testExtractProfileNames_preservesOrder() {
+        let sections = [
+            CredentialsSection(header: "[zebra]", lines: []),
+            CredentialsSection(header: "[alpha]", lines: []),
+            CredentialsSection(header: "[beta]", lines: [])
+        ]
+
+        let names = updater.extractProfileNames(from: sections)
+
+        XCTAssertEqual(names, ["zebra", "alpha", "beta"])
+    }
+
+    func testExtractProfileNames_integrationWithParseSections() {
+        let content = """
+        [default]
+        aws_access_key_id = DEFAULT_KEY
+
+        [production]
+        aws_access_key_id = PROD_KEY
+
+        [staging]
+        aws_access_key_id = STAGING_KEY
+        """
+
+        let sections = updater.parseSections(content)
+        let names = updater.extractProfileNames(from: sections)
+
+        XCTAssertEqual(names, ["default", "production", "staging"])
+    }
+
+    func testExtractProfileNames_integrationWithEmptyFile() {
+        let content = ""
+
+        let sections = updater.parseSections(content)
+        let names = updater.extractProfileNames(from: sections)
+
+        XCTAssertEqual(names, [])
+    }
+
     // MARK: - filterClipboardContent Tests
 
     func testFilterClipboardContent_removesHeaders() {
