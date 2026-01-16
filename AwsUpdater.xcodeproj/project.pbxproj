@@ -6,6 +6,16 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		81CF17002DB45A770045386A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 81CF16C82DB45A770045386A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 81CF16CF2DB45A770045386A;
+			remoteInfo = AwsUpdater;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXCopyFilesBuildPhase section */
 		81CF16CE2DB45A770045386A /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -20,18 +30,46 @@
 
 /* Begin PBXFileReference section */
 		81CF16D02DB45A770045386A /* AwsUpdater */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AwsUpdater; sourceTree = BUILT_PRODUCTS_DIR; };
+		81CF17042DB45A770045386A /* AwsUpdaterTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AwsUpdaterTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		815ACA262F19C12F00165F49 /* Exceptions for "AwsUpdater" folder in "AwsUpdaterTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				CredentialsUpdater.swift,
+				main.swift,
+				Providers.swift,
+			);
+			target = 81CF17032DB45A770045386A /* AwsUpdaterTests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		81CF16D22DB45A770045386A /* AwsUpdater */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				815ACA262F19C12F00165F49 /* Exceptions for "AwsUpdater" folder in "AwsUpdaterTests" target */,
+			);
 			path = AwsUpdater;
+			sourceTree = "<group>";
+		};
+		81CF17052DB45A770045386A /* AwsUpdaterTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = AwsUpdaterTests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		81CF16CD2DB45A770045386A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		81CF17012DB45A770045386A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -45,6 +83,7 @@
 			isa = PBXGroup;
 			children = (
 				81CF16D22DB45A770045386A /* AwsUpdater */,
+				81CF17052DB45A770045386A /* AwsUpdaterTests */,
 				81CF16D12DB45A770045386A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -53,6 +92,7 @@
 			isa = PBXGroup;
 			children = (
 				81CF16D02DB45A770045386A /* AwsUpdater */,
+				81CF17042DB45A770045386A /* AwsUpdaterTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -82,6 +122,28 @@
 			productReference = 81CF16D02DB45A770045386A /* AwsUpdater */;
 			productType = "com.apple.product-type.tool";
 		};
+		81CF17032DB45A770045386A /* AwsUpdaterTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 81CF17092DB45A770045386A /* Build configuration list for PBXNativeTarget "AwsUpdaterTests" */;
+			buildPhases = (
+				81CF16FF2DB45A770045386A /* Sources */,
+				81CF17012DB45A770045386A /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				81CF17062DB45A770045386A /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				81CF17052DB45A770045386A /* AwsUpdaterTests */,
+			);
+			name = AwsUpdaterTests;
+			packageProductDependencies = (
+			);
+			productName = AwsUpdaterTests;
+			productReference = 81CF17042DB45A770045386A /* AwsUpdaterTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -94,6 +156,10 @@
 				TargetAttributes = {
 					81CF16CF2DB45A770045386A = {
 						CreatedOnToolsVersion = 16.3;
+					};
+					81CF17032DB45A770045386A = {
+						CreatedOnToolsVersion = 16.3;
+						TestTargetID = 81CF16CF2DB45A770045386A;
 					};
 				};
 			};
@@ -112,6 +178,7 @@
 			projectRoot = "";
 			targets = (
 				81CF16CF2DB45A770045386A /* AwsUpdater */,
+				81CF17032DB45A770045386A /* AwsUpdaterTests */,
 			);
 		};
 /* End PBXProject section */
@@ -124,7 +191,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		81CF16FF2DB45A770045386A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		81CF17062DB45A770045386A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 81CF16CF2DB45A770045386A /* AwsUpdater */;
+			targetProxy = 81CF17002DB45A770045386A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		81CF16D52DB45A770045386A /* Debug */ = {
@@ -263,6 +345,30 @@
 			};
 			name = Release;
 		};
+		81CF17072DB45A770045386A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.4;
+				PRODUCT_BUNDLE_IDENTIFIER = com.statbit.AwsUpdaterTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		81CF17082DB45A770045386A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.4;
+				PRODUCT_BUNDLE_IDENTIFIER = com.statbit.AwsUpdaterTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -280,6 +386,15 @@
 			buildConfigurations = (
 				81CF16D82DB45A770045386A /* Debug */,
 				81CF16D92DB45A770045386A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		81CF17092DB45A770045386A /* Build configuration list for PBXNativeTarget "AwsUpdaterTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				81CF17072DB45A770045386A /* Debug */,
+				81CF17082DB45A770045386A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
