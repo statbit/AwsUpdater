@@ -58,8 +58,10 @@ struct AWSCredentialsManager {
     }
 
     /// Updates the AWS credentials file with content from clipboard
-    /// - Parameter credentialsPath: Path to the credentials file
-    func updateCredentials(at credentialsPath: URL) throws {
+    /// - Parameters:
+    ///   - credentialsPath: Path to the credentials file
+    ///   - profileName: The profile to update (defaults to "default")
+    func updateCredentials(at credentialsPath: URL, profileName: String = "default") throws {
         // Get clipboard contents
         guard let clipboardContent = clipboard.getString() else {
             throw AWSCredentialsError.noClipboardContent
@@ -70,7 +72,7 @@ struct AWSCredentialsManager {
 
         // Parse and update
         let sections = updater.parseSections(content)
-        let newContent = updater.updateDefaultSection(sections: sections, newCredentials: clipboardContent)
+        let newContent = updater.updateSection(sections: sections, profileName: profileName, newCredentials: clipboardContent)
 
         // Write back
         try fileProvider.write(newContent, to: credentialsPath)

@@ -67,19 +67,21 @@ struct CredentialsUpdater {
         return result
     }
 
-    /// Updates the default section with new credentials
+    /// Updates or creates a section with new credentials
     /// - Parameters:
     ///   - sections: Parsed sections from the credentials file
-    ///   - newCredentials: New credentials content to put in [default] section
+    ///   - profileName: The profile name (e.g., "default", "production")
+    ///   - newCredentials: New credentials content to put in the section
     /// - Returns: The complete updated credentials file content
-    func updateDefaultSection(sections: [CredentialsSection], newCredentials: String) -> String {
+    func updateSection(sections: [CredentialsSection], profileName: String, newCredentials: String) -> String {
         var outputLines: [String] = []
-        var foundDefault = false
+        var foundSection = false
         let filteredCredentials = filterClipboardContent(newCredentials)
+        let targetHeader = "[\(profileName)]"
 
         for section in sections {
-            if section.header.lowercased() == "[default]" {
-                foundDefault = true
+            if section.header.lowercased() == targetHeader.lowercased() {
+                foundSection = true
                 outputLines.append(section.header)
                 outputLines.append(contentsOf: filteredCredentials)
             } else {
@@ -89,12 +91,12 @@ struct CredentialsUpdater {
             }
         }
 
-        // If no [default] section existed, add it
-        if !foundDefault {
+        // If section didn't exist, add it
+        if !foundSection {
             if !outputLines.isEmpty {
                 outputLines.append("")
             }
-            outputLines.append("[default]")
+            outputLines.append(targetHeader)
             outputLines.append(contentsOf: filteredCredentials)
         }
 

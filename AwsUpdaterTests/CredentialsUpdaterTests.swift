@@ -125,16 +125,16 @@ final class CredentialsUpdaterTests: XCTestCase {
         XCTAssertTrue(filtered[1].isEmpty)
     }
 
-    // MARK: - updateDefaultSection Tests
+    // MARK: - updateSection Tests (default profile)
 
-    func testUpdateDefaultSection_replacesExistingDefault() {
+    func testUpdateSection_replacesExistingDefault() {
         let sections = [
             CredentialsSection(header: "[default]", lines: ["aws_access_key_id = OLD_KEY"]),
             CredentialsSection(header: "[profile dev]", lines: ["aws_access_key_id = DEV_KEY"])
         ]
         let newCredentials = "aws_access_key_id = NEW_KEY\naws_secret_access_key = NEW_SECRET"
 
-        let result = updater.updateDefaultSection(sections: sections, newCredentials: newCredentials)
+        let result = updater.updateSection(sections: sections, profileName: "default", newCredentials: newCredentials)
 
         XCTAssertTrue(result.contains("aws_access_key_id = NEW_KEY"))
         XCTAssertTrue(result.contains("aws_secret_access_key = NEW_SECRET"))
@@ -143,36 +143,36 @@ final class CredentialsUpdaterTests: XCTestCase {
         XCTAssertTrue(result.contains("DEV_KEY"))
     }
 
-    func testUpdateDefaultSection_addsDefaultWhenMissing() {
+    func testUpdateSection_addsDefaultWhenMissing() {
         let sections = [
             CredentialsSection(header: "[profile dev]", lines: ["aws_access_key_id = DEV_KEY"])
         ]
         let newCredentials = "aws_access_key_id = NEW_KEY"
 
-        let result = updater.updateDefaultSection(sections: sections, newCredentials: newCredentials)
+        let result = updater.updateSection(sections: sections, profileName: "default", newCredentials: newCredentials)
 
         XCTAssertTrue(result.contains("[default]"))
         XCTAssertTrue(result.contains("aws_access_key_id = NEW_KEY"))
         XCTAssertTrue(result.contains("[profile dev]"))
     }
 
-    func testUpdateDefaultSection_createsDefaultInEmptyFile() {
+    func testUpdateSection_createsDefaultInEmptyFile() {
         let sections: [CredentialsSection] = []
         let newCredentials = "aws_access_key_id = NEW_KEY"
 
-        let result = updater.updateDefaultSection(sections: sections, newCredentials: newCredentials)
+        let result = updater.updateSection(sections: sections, profileName: "default", newCredentials: newCredentials)
 
         XCTAssertTrue(result.contains("[default]"))
         XCTAssertTrue(result.contains("aws_access_key_id = NEW_KEY"))
     }
 
-    func testUpdateDefaultSection_caseInsensitiveDefaultMatch() {
+    func testUpdateSection_caseInsensitiveDefaultMatch() {
         let sections = [
             CredentialsSection(header: "[DEFAULT]", lines: ["aws_access_key_id = OLD_KEY"])
         ]
         let newCredentials = "aws_access_key_id = NEW_KEY"
 
-        let result = updater.updateDefaultSection(sections: sections, newCredentials: newCredentials)
+        let result = updater.updateSection(sections: sections, profileName: "default", newCredentials: newCredentials)
 
         // Should replace, not add a new [default]
         let defaultCount = result.components(separatedBy: "[").filter { $0.lowercased().hasPrefix("default]") }.count
@@ -181,13 +181,13 @@ final class CredentialsUpdaterTests: XCTestCase {
         XCTAssertFalse(result.contains("OLD_KEY"))
     }
 
-    func testUpdateDefaultSection_stripsHeaderFromClipboard() {
+    func testUpdateSection_stripsHeaderFromClipboard() {
         let sections = [
             CredentialsSection(header: "[default]", lines: ["aws_access_key_id = OLD_KEY"])
         ]
         let newCredentials = "[default]\naws_access_key_id = NEW_KEY"
 
-        let result = updater.updateDefaultSection(sections: sections, newCredentials: newCredentials)
+        let result = updater.updateSection(sections: sections, profileName: "default", newCredentials: newCredentials)
 
         // Should only have one [default] header
         let lines = result.components(separatedBy: "\n")
@@ -195,7 +195,7 @@ final class CredentialsUpdaterTests: XCTestCase {
         XCTAssertEqual(defaultHeaders.count, 1)
     }
 
-    func testUpdateDefaultSection_preservesOtherSectionsOrder() {
+    func testUpdateSection_preservesOtherSectionsOrder() {
         let sections = [
             CredentialsSection(header: "[profile alpha]", lines: ["key = alpha"]),
             CredentialsSection(header: "[default]", lines: ["key = default"]),
@@ -203,7 +203,7 @@ final class CredentialsUpdaterTests: XCTestCase {
         ]
         let newCredentials = "key = new_default"
 
-        let result = updater.updateDefaultSection(sections: sections, newCredentials: newCredentials)
+        let result = updater.updateSection(sections: sections, profileName: "default", newCredentials: newCredentials)
 
         let alphaIndex = result.range(of: "[profile alpha]")!.lowerBound
         let defaultIndex = result.range(of: "[default]")!.lowerBound
@@ -211,6 +211,77 @@ final class CredentialsUpdaterTests: XCTestCase {
 
         XCTAssertLessThan(alphaIndex, defaultIndex)
         XCTAssertLessThan(defaultIndex, betaIndex)
+    }
+
+    // MARK: - updateSection Tests (custom profiles)
+
+    func testUpdateSection_updatesExistingCustomProfile() {
+        let sections = [
+            CredentialsSection(header: "[default]", lines: ["aws_access_key_id = DEFAULT_KEY"]),
+            CredentialsSection(header: "[production]", lines: ["aws_access_key_id = OLD_PROD_KEY"])
+        ]
+        let newCredentials = "aws_access_key_id = NEW_PROD_KEY"
+
+        let result = updater.updateSection(sections: sections, profileName: "production", newCredentials: newCredentials)
+
+        XCTAssertTrue(result.contains("[default]"))
+        XCTAssertTrue(result.contains("DEFAULT_KEY"))
+        XCTAssertTrue(result.contains("[production]"))
+        XCTAssertTrue(result.contains("NEW_PROD_KEY"))
+        XCTAssertFalse(result.contains("OLD_PROD_KEY"))
+    }
+
+    func testUpdateSection_createsNewCustomProfile() {
+        let sections = [
+            CredentialsSection(header: "[default]", lines: ["aws_access_key_id = DEFAULT_KEY"])
+        ]
+        let newCredentials = "aws_access_key_id = STAGING_KEY"
+
+        let result = updater.updateSection(sections: sections, profileName: "staging", newCredentials: newCredentials)
+
+        XCTAssertTrue(result.contains("[default]"))
+        XCTAssertTrue(result.contains("DEFAULT_KEY"))
+        XCTAssertTrue(result.contains("[staging]"))
+        XCTAssertTrue(result.contains("STAGING_KEY"))
+    }
+
+    func testUpdateSection_createsCustomProfileInEmptyFile() {
+        let sections: [CredentialsSection] = []
+        let newCredentials = "aws_access_key_id = PROD_KEY"
+
+        let result = updater.updateSection(sections: sections, profileName: "production", newCredentials: newCredentials)
+
+        XCTAssertTrue(result.contains("[production]"))
+        XCTAssertTrue(result.contains("PROD_KEY"))
+        XCTAssertFalse(result.contains("[default]"))
+    }
+
+    func testUpdateSection_caseInsensitiveCustomProfileMatch() {
+        let sections = [
+            CredentialsSection(header: "[PRODUCTION]", lines: ["aws_access_key_id = OLD_KEY"])
+        ]
+        let newCredentials = "aws_access_key_id = NEW_KEY"
+
+        let result = updater.updateSection(sections: sections, profileName: "production", newCredentials: newCredentials)
+
+        // Should replace existing, not add a new section
+        let prodCount = result.components(separatedBy: "[").filter { $0.lowercased().hasPrefix("production]") }.count
+        XCTAssertEqual(prodCount, 1)
+        XCTAssertTrue(result.contains("NEW_KEY"))
+        XCTAssertFalse(result.contains("OLD_KEY"))
+    }
+
+    func testUpdateSection_preservesOriginalHeaderCase() {
+        let sections = [
+            CredentialsSection(header: "[PRODUCTION]", lines: ["aws_access_key_id = OLD_KEY"])
+        ]
+        let newCredentials = "aws_access_key_id = NEW_KEY"
+
+        let result = updater.updateSection(sections: sections, profileName: "production", newCredentials: newCredentials)
+
+        // Should preserve the original [PRODUCTION] header, not replace with [production]
+        XCTAssertTrue(result.contains("[PRODUCTION]"))
+        XCTAssertFalse(result.contains("[production]"))
     }
 }
 
@@ -266,7 +337,7 @@ final class AWSCredentialsManagerTests: XCTestCase {
         )
     }
 
-    func testUpdateCredentials_fullFlow() throws {
+    func testUpdateCredentials_fullFlow_defaultProfile() throws {
         // Setup
         mockFileProvider.files[testURL] = """
         [default]
@@ -287,6 +358,48 @@ final class AWSCredentialsManagerTests: XCTestCase {
         XCTAssertFalse(result.contains("OLD_KEY"))
         XCTAssertTrue(result.contains("[profile dev]"))
         XCTAssertTrue(result.contains("DEV_KEY"))
+    }
+
+    func testUpdateCredentials_customProfile() throws {
+        // Setup
+        mockFileProvider.files[testURL] = """
+        [default]
+        aws_access_key_id = DEFAULT_KEY
+
+        [production]
+        aws_access_key_id = OLD_PROD_KEY
+        """
+        mockClipboard.content = "aws_access_key_id = NEW_PROD_KEY"
+
+        // Execute
+        try manager.updateCredentials(at: testURL, profileName: "production")
+
+        // Verify
+        let result = mockFileProvider.files[testURL]!
+        XCTAssertTrue(result.contains("[default]"))
+        XCTAssertTrue(result.contains("DEFAULT_KEY"))
+        XCTAssertTrue(result.contains("[production]"))
+        XCTAssertTrue(result.contains("NEW_PROD_KEY"))
+        XCTAssertFalse(result.contains("OLD_PROD_KEY"))
+    }
+
+    func testUpdateCredentials_createsNewProfile() throws {
+        // Setup
+        mockFileProvider.files[testURL] = """
+        [default]
+        aws_access_key_id = DEFAULT_KEY
+        """
+        mockClipboard.content = "aws_access_key_id = STAGING_KEY"
+
+        // Execute
+        try manager.updateCredentials(at: testURL, profileName: "staging")
+
+        // Verify
+        let result = mockFileProvider.files[testURL]!
+        XCTAssertTrue(result.contains("[default]"))
+        XCTAssertTrue(result.contains("DEFAULT_KEY"))
+        XCTAssertTrue(result.contains("[staging]"))
+        XCTAssertTrue(result.contains("STAGING_KEY"))
     }
 
     func testUpdateCredentials_noClipboardContent_throwsError() {
